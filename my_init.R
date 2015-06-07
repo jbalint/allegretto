@@ -16,3 +16,78 @@ myGetSymbol('AAPL', 'f7e9c54e-8d7f-45bc-97d5-35984f94706b')
 myGetSymbol('MSFT', 'b62c7bb0-e543-4ec7-8b35-30bff56d6a6b')
 myGetSymbol('CRM', '1d49f19a-2513-47f4-b51c-5ef0aec6c378')
 myGetSymbol('SCCO', 'd17c268d-4a01-4df5-a856-d4f797cfc208')
+
+# Copied so I can pass `mktdata' directly
+myChartPosn <- function(Portfolio, Symbol, mktdata, Dates = NULL, ...,TA=NULL)
+{
+    pname<-Portfolio
+    Portfolio<-getPortfolio(pname)
+
+    Prices = mktdata
+    freq = periodicity(Prices)
+    switch(freq$scale,
+            seconds = { mult=1 },
+            minute = { mult=60 },
+            hourly = { mult=3600 },
+            daily = { mult=86400 },
+            {mult=86400}
+    )
+    if(!isTRUE(freq$frequency*mult == round(freq$frequency,0)*mult)) {
+        # if the equality
+        n=round((freq$frequency/mult),0)*mult
+    } else { n=mult }
+
+    tzero = xts(0,order.by=index(Prices[1,]))
+    if(is.null(Dates)) Dates<-paste(first(index(Prices)),last(index(Prices)),sep='::')
+
+    #scope the data by Dates
+    Portfolio$symbols[[Symbol]]$txn<-Portfolio$symbols[[Symbol]]$txn[Dates]
+    Portfolio$symbols[[Symbol]]$posPL<-Portfolio$symbols[[Symbol]]$posPL[Dates]
+
+    Trades = Portfolio$symbols[[Symbol]]$txn$Txn.Qty
+
+    Buys = Portfolio$symbols[[Symbol]]$txn$Txn.Price[which(Trades>0)]
+    Sells = Portfolio$symbols[[Symbol]]$txn$Txn.Price[which(Trades<0)]
+
+    Position = Portfolio$symbols[[Symbol]]$txn$Pos.Qty
+
+    if(nrow(Position)<1) stop ('no transactions/positions to chart')
+
+    if(as.POSIXct(first(index(Prices)))<as.POSIXct(first(index(Position)))) Position<-rbind(xts(0,order.by=first(index(Prices)-1)),Position)
+    Positionfill = na.locf(merge(Position,index(Prices)))
+
+    CumPL = cumsum(Portfolio$symbols[[Symbol]]$posPL$Net.Trading.PL)
+    if(length(CumPL)>1)
+        CumPL = na.omit(na.locf(merge(CumPL,index(Prices))))
+    else
+        CumPL = NULL
+
+    if(!is.null(CumPL)) {
+        CumMax <- cummax(CumPL)
+        Drawdown <- -(CumMax - CumPL)
+        Drawdown<-rbind(xts(-max(CumPL),order.by=first(index(Drawdown)-1)),Drawdown)
+    } else {
+        Drawdown <- NULL
+    }
+    #     # These aren't quite right, as abs(Pos.Qty) should be less than prior abs(Pos.Qty)
+    # SellCover = Portfolio$symbols[[Symbol]]$txn$Txn.Price * (Portfolio$symbols[[Symbol]]$txn$Txn.Qty<0) * (Portfolio$symbols[[Symbol]]$txn$Pos.Qty==0)
+    # BuyCover = Portfolio$symbols[[Symbol]]$txn$Txn.Price * (Portfolio$symbols[[Symbol]]$txn$Txn.Qty>0) * (Portfolio$symbols[[Symbol]]$txn$Pos.Qty==0)
+    #
+    #     #Symbol 24 (up) and 25 (dn) can take bkgd colors
+    # addTA(BuyCover,pch=24,type="p",col="green", bg="orange", on=1)
+    # addTA(SellCover,pch=25,type="p",col="red", bg="orange", on=1)
+
+    # scope the Price data by Dates
+    if(!is.null(Dates)) Prices=Prices[Dates]
+
+    chart_Series(Prices, name=Symbol, TA=TA, ...)
+    if(!is.null(nrow(Buys)) && nrow(Buys) >=1 ) (add_TA(Buys,pch=2,type='p',col='green', on=1));
+    if(!is.null(nrow(Sells)) && nrow(Sells) >= 1) (add_TA(Sells,pch=6,type='p',col='red', on=1));
+    if(nrow(Position)>=1) {
+        (add_TA(Positionfill,type='h',col='blue', lwd=2))
+        (add_TA(Position,type='p',col='orange', lwd=2, on=2))
+    }
+    if(!is.null(CumPL))  (add_TA(CumPL, col='darkgreen', lwd=2))
+    if(!is.null(Drawdown)) (add_TA(Drawdown, col='darkred', lwd=2, yaxis=c(0,-max(CumMax))))
+    plot(current.chob())
+}

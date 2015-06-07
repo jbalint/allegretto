@@ -3,14 +3,22 @@
 # Trade history should be loaded already (c.f. mysql_import.R)
 symbol <- "AAPL"
 mktdata <- get(symbol)
+#mktdata <- mktdata["2014-09-01/2014-09-15"]
+
 mktdata <- merge.xts(mktdata, ADX(mktdata))
-mktdata$SMAFast <- SMA(Cl(mktdata), n = 10)
-mktdata$SMASlow <- SMA(Cl(mktdata), n = 20)
+mktdata$SMAFast <- SMA(mktdata$Close, n = 10)
+mktdata$SMASlow <- SMA(mktdata$Close, n = 20)
 mktdata <- merge.xts(mktdata, ATR(mktdata))
-mktdata$AtrStoploss <- Cl(mktdata) < (lag(Cl(mktdata), k=1) - (2 * lag(mktdata$tr, k=1)))
+mktdata$AtrStop <- lag(mktdata$Close, k=1) - (2 * lag(mktdata$atr, k=1))
+mktdata$AtrStopout <- mktdata$Close < mktdata$AtrStop
 mktdata <- merge.xts(mktdata, sigCrossover("MACrossover", columns=c("SMAFast", "SMASlow")))
 mktdata <- merge.xts(mktdata, sigCrossover("MACrossback", columns=c("SMASlow", "SMAFast")))
-
+mktdata$mac2 <- mktdata$MACrossover * mktdata$Close
+#head(mktdata[,c("AAPL.Close", "atr", "AtrStop", "AtrStopout")], n=100)
+# these packages are really stupid in this regard, Cl() uses grep, etc
+# AND there's no nicer way to do this?
+mktdata <- mktdata[, !(colnames(mktdata) %in% c("trueHigh","trueLow"))]
+#mktdata <- subset(mktdata, select = -c("trueHigh", "trueLow"))
 
 #
 currency("USD")
@@ -22,20 +30,19 @@ strategy("default", store = TRUE)
 initOrders(portfolio="default")
 initAcct(portfolios="default", initEq=10000)
 
+# position sizing, passed as osFUN (order sizing function)
 osRisk <- function(data, timestamp, ...) {
     mktdata <- data
     ts <- timestamp
-    maxSpend <- 15000
+    maxSpend <- 5000
     maxRisk <- 100 # 2% of $5k, TODO: example value (for now)
     maxLoss <- as.numeric(mktdata[ts]$atr) * 3
     orderqty <- floor(maxRisk / maxLoss)
-    price <- as.numeric(Cl(mktdata[ts]))
+    price <- as.numeric(mktdata[ts]$Close)
     cost <- orderqty * price
     maxqty <- floor(maxSpend / price)
     return(ifelse(cost > maxSpend, maxqty, orderqty))
 }
-
-# TODO: need to code up some position sizing logic
 
 add.rule("default", "ruleSignal",
          list(sigcol = "MACrossover", sigval = TRUE, orderqty = 1, osFUN = osRisk, ordertype = "market", orderside = "long"),
@@ -43,7 +50,12 @@ add.rule("default", "ruleSignal",
          label = "enterLong")
 
 ## add.rule("default", "ruleSignal",
-##          list(sigcol = "AtrStoploss", sigval = 1, orderqty = "all", ordertype = "market", orderside = "long"), type = "exit")
+##          list(sigcol = "AtrStopout", sigval = 1, orderqty = "all", ordertype = "market", orderside = "long"), type = "exit")
+
+add.rule("default", "ruleSignal",
+         list(orderqty = "all", ordertype = "stoplimit", threshold = -0.01, tmult = TRUE),
+         type = "chain", parent = "enterLong")
+
 add.rule("default", "ruleSignal",
          list(sigcol = "MACrossback", sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"), type = "exit")
 
@@ -69,9 +81,37 @@ applyStrategy(strategy="default", portfolios="default", mktdata=mktdata)
 updatePortf("default")
 updateAcct()
 updateEndEq(Account="default")
+
 t(tradeStats("default"))
 
-par(bg="gray")
-par(bg="#2F4F4F")
+#par(bg="gray")
+#par(bg="#2F4F4F")
 
-chart.Posn("default", symbol, TA="add_TA(mktdata$SMAFast,col=4,on=1);add_TA(mktdata$SMASlow,col=6,on=1)")
+
+TA <- "add_TA(mktdata$AtrStop,on=1)"
+
+TA <- ""
+
+TA <- "add_TA(mktdata$SMAFast,col=4,on=1);add_TA(mktdata$SMASlow,col=6,on=1)"
+
+#chart.Posn("default", symbol, TA=TA)
+
+#myChartPosn("default", symbol, mktdata["/2014-11"], TA=TA)
+
+png(filename = "test_out.png",
+    width = 6000, height = 1000, units = "px", pointsize = 12,
+    bg = "white",  res = 150,
+    type = c("cairo", "cairo-png", "Xlib", "quartz"))
+myChartPosn("default", symbol, mktdata, TA=TA)
+dev.off()
+
+
+# this one causes problems with `chartSeries' (because it has the word "low" in it)
+mktdata <- mktdata[, !(colnames(mktdata) %in% c("SMASlow"))]
+
+chart_Series(mktdata["2014-09"])
+
+add_TA(mktdata$AtrStop, on = 1)
+#add_TA(mktdata$mac2, on = 1, col = 8)
+
+add_TA(mktdata$SMAFast,col=4,on=1)

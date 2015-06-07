@@ -12,7 +12,8 @@ loadHistory <- function (symbol, id) {
     fr <- DBI::fetch(rs, n=-1)
     # TODO: currently all data (afaik) is in CDT timezone
     fr2 <- xts(as.matrix(fr[,-1]),order.by=as.POSIXct(fr$time, tz="America/Chicago", origin="1970-01-01"))
-    colnames(fr2) <- paste(symbol, c('Open','High','Low','Close','Volume','Adjusted'), sep='.')
+    # don't use the "SYM.Xxx" prefixed names like quantmod does.
+    colnames(fr2) <- c('Open','High','Low','Close','Volume','Adjusted')
     DBI::dbDisconnect(con)
     return(fr2)
 }

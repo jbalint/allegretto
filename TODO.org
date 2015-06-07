@@ -1,0 +1,21 @@
+Tasks:
+
+* Avoid duplicate history captures
+  + The history capture will add two sets of histories. For some
+    reason the program receives it twice (InsertTradeHistories).
+  + Avoid this by checking the position? And the symbol.
+* Link together segments of history capture
+  + The trade history is received in several record sources.
+  + We can check if one is linked to the previous capture by checking
+    the symbol and that the first time delta is one prior to the
+    minimum previously seen.
+	+ I think we see the highest time first? Need to check this. If
+      not, will need to save entire segment in memory and then check
+      for relation with previous segment.
+* Experiment with GUI options to test a strategy on a history capture
+  + Charting
+	+ indicators
+	+ subsetting / zooming
+  + Need a general evaluation report of a strategy
+	+ And a higher level one to collect evals several strategies and
+      compare them

@@ -73,7 +73,7 @@ indicator.func <- "SMA" # function name (from TTR package)
 # "mktdata" is a special object (c.f. "quantstrat.pdf" (Guy Yollin) pg 34)
 strat2 <- add.indicator(strat, "SMA", list(x = quote(Cl(mktdata)), n = 10), label = "SMA10")
 
-signal.func <- "sigCrossover" # function name (c.f. add.signal() help)
+signal.func <- "sigCrossover" # function name (c.f. add.signal() help, also IKTrading has a `sigAND()')
 strat3 <- add.signal(strat2, signal.func, list(columns = c("Close", "SMA10"), relationship = "gt"), label = "Cl.gt.SMA")
 strat4 <- add.signal(strat3, signal.func, list(columns = c("Close", "SMA10"), relationship = "lt"), label = "Cl.lt.SMA")
 
