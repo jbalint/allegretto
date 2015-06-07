@@ -84,6 +84,10 @@ updateEndEq(Account="default")
 
 t(tradeStats("default"))
 
+tradeQuantiles("default", symbol)
+
+perTradeStats("default", symbol)
+
 #par(bg="gray")
 #par(bg="#2F4F4F")
 
@@ -102,7 +106,9 @@ png(filename = "test_out.png",
     width = 6000, height = 1000, units = "px", pointsize = 12,
     bg = "white",  res = 150,
     type = c("cairo", "cairo-png", "Xlib", "quartz"))
+
 myChartPosn("default", symbol, mktdata, TA=TA)
+
 dev.off()
 
 

@@ -7,12 +7,6 @@
   (interactive)
   (async-shell-command "love ."))
 
-(defun capture-list-widget ()
-  (widget-create 'link
-                 :notify (lambda (&rest ignore)
-						   (message "You chose it"))
-                 "other work"))
-
 ;; query the DB
 (defun tos-get-history-list ()
   "Retrieve the list of available (TOS) trade histories"
@@ -35,4 +29,4 @@
 								   (car (split-string (nth 3 vals))) " / "
 								   (car (split-string (nth 4 vals))) " "))
 			(insert "\n")))
-		(split-string rows "\n" t))
+		(split-string (tos-get-history-list) "\n" t))
