@@ -32,7 +32,23 @@ p2 <- ggplot(ts, aes(x=Net.Trading.PL, y=MFE, color=isWin, shape=isWin)) +
       # this sets my colors to green/red
       scale_colour_manual(values=c("#FF9999", "#00CC00")) +
       geom_smooth(method=glm, se=FALSE)
+
 multiplot(p1, p2)
+
+# *three* graphs (including return distribution)
+
+## p3 <- ggplot(pctReturn, aes(x=PL, fill=as.factor(positive))) +
+##     geom_histogram(binwidth=.25, color="black") +
+##         # this sets my colors to green/red
+##         scale_fill_manual(values=c("#FF9999", "#90FF90"))
+
+## png(filename = "ex_v1/mae_mfe_plot.ex1.png",
+##     width = 1500, height = 300, units = "px", pointsize = 12,
+##     bg = "white",
+##     type = c("cairo", "cairo-png", "Xlib", "quartz"))
+## print(multiplot(p3, p1, p2, cols=3))
+## dev.off()
+
 
 # some further calculation
 # Merge in the atr from the mktdata, use "Start" as the name for the merge

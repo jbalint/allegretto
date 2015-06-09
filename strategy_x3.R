@@ -56,8 +56,16 @@ add.rule("default", "ruleSignal",
          list(orderqty = "all", ordertype = "stoplimit", threshold = -0.01, tmult = TRUE),
          type = "chain", parent = "enterLong")
 
+## add.rule("default", "ruleSignal",
+##          list(sigcol = "MACrossback", sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"),
+##          type = "exit")
+
+hours <- 12
+
 add.rule("default", "ruleSignal",
-         list(sigcol = "MACrossback", sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"), type = "exit")
+         list(sigcol = "MACrossback",
+              delay = 3600 * 72, sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"),
+         type = "exit")
 
 
 ## add.rule("default", name = 'ruleSignal',
@@ -113,11 +121,21 @@ dev.off()
 
 
 # this one causes problems with `chartSeries' (because it has the word "low" in it)
+#
 mktdata <- mktdata[, !(colnames(mktdata) %in% c("SMASlow"))]
 
-chart_Series(mktdata["2014-09"])
+
+png(filename = "ex_v1/ta.ex1.png",
+    width = 1000, height = 400, units = "px", pointsize = 12,
+    bg = "white",
+    type = c("cairo", "cairo-png", "Xlib", "quartz"))
+
+chart_Series(mktdata["2014-12"])
+#chart_Series(mktdata)
 
 add_TA(mktdata$AtrStop, on = 1)
 #add_TA(mktdata$mac2, on = 1, col = 8)
 
 add_TA(mktdata$SMAFast,col=4,on=1)
+
+dev.off()

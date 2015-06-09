@@ -1,0 +1,86 @@
+#+TITLE: (Example) System Evaluation (v1)
+
+* Prolog
+  This is an example system evaluation report. This is the first
+  attempt at such a report. At current it does not address
+  compare/contrast of systems, but aims to show ALL details that would
+  make sense to address for a system.
+
+  It's loosely based on the ~strategy_x3.R~ program.
+
+  All input data is currently at hourly frequency.
+* System
+** Technical Analysis
+   | Indicator       | Formula                                         |
+   |-----------------+-------------------------------------------------|
+   | *~SMAFast~*     | SMA(10)                                         |
+   | *~SMASlow~*     | SMA(20)                                         |
+   | *~ATR~*         | (TTR package default)                           |
+   | *~MACrossover~* | ~sigCrossover(columns=c("SMAFast", "SMASlow"))~ |
+   |                 |                                                 |
+** Entry
+   *~SMAFast~* crosses above *~SMASlow~*.
+** Exit
+   Crosses back
+* Indicators
+  Showing only one month. Need good detailed view for technical
+  indicators. Black line is some attempt at ATR stop. Blue is
+  *~SMAFast~*.
+
+  (*NOTE:* Need a lot of work on this graph. It needs to ideally be
+  interactive.)
+
+  file:ta.ex1.png
+* chart.Posn
+#+COMMENT: 1200x600
+  Trades, entry/exit signals, equity curve, drawdown graph
+
+  file:chart.Posn.ex1.png
+* Return Distribution & MAE / MFE
+#+COMMENT: 1500x300
+  file:mae_mfe_plot.ex1.png
+* E-Ratio
+  TBD: Need analysis of this. This is *entry* edge only.
+* Trade stats
+|                    |       AAPL |
+|--------------------+------------|
+| Num.Txns           |         82 |
+| Num.Trades         |         40 |
+| *Net.Trading.PL*   | *1278.108* |
+| Avg.Trade.PL       |   32.01283 |
+| Med.Trade.PL       |      -8.24 |
+| Gross.Profits      |    2113.47 |
+| Gross.Losses       |  -832.9573 |
+| Std.Dev.Trade.PL   |   126.8929 |
+| Profit.Factor      |    2.53731 |
+| Avg.Daily.PL       |   32.83367 |
+| Med.Daily.PL       |      -9.88 |
+| Std.Dev.Daily.PL   |   128.3279 |
+| Ann.Sharpe         |   4.061614 |
+| *Max.Drawdown*     |  -235.4432 |
+| Profit.To.Max.Draw |   5.428521 |
+| Avg.WinLoss.Ratio  |   3.432831 |
+| Med.WinLoss.Ratio  |  0.9816733 |
+| Max.Equity         |   1367.403 |
+| Min.Equity         |    -26.596 |
+| End.Equity         |   1278.108 |
+
+Win/loss stats
+
+|         | Winner |  Loser |
+|---------+--------+--------|
+| Largest |  493.8 | -50.13 |
+| Average | 124.32 | -36.22 |
+| Median  |  48.36 | -49.27 |
+| Percent |   42.5 |   57.5 |
+
+* Stuff to add:
+  + Normalize
+  + My "E-Ratio" like number that takes the whole system into account
+  + Include fees into calculations
+  + Weekly and/or monthly return and drawdown
+** Inspiration:
+   from:
+   https://systematicedge.wordpress.com/2011/02/23/system-development-3/
+
+   file:systematicedge_portfolioperformance.png
