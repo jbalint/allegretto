@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>(Example) System Evaluation (v1)</title>
+<!-- 2015-06-09 Tue 16:04 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Jess Balint" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">(Example) System Evaluation (v1)</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Prolog</a></li>
+<li><a href="#sec-2">2. System</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Technical Analysis</a></li>
+<li><a href="#sec-2-2">2.2. Entry</a></li>
+<li><a href="#sec-2-3">2.3. Exit</a></li>
+<li><a href="#sec-2-4">2.4. Key Performance Indicators</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Indicators</a></li>
+<li><a href="#sec-4">4. chart.Posn</a></li>
+<li><a href="#sec-5">5. Return Distribution &amp; MAE / MFE</a>
+<ul>
+<li><a href="#sec-5-1">5.1. Improvements</a></li>
+</ul>
+</li>
+<li><a href="#sec-6">6. E-Ratio</a></li>
+<li><a href="#sec-7">7. Trade stats</a></li>
+<li><a href="#sec-8">8. Stuff to add:</a>
+<ul>
+<li><a href="#sec-8-1">8.1. System Performance Stats</a></li>
+<li><a href="#sec-8-2">8.2. Curtis Faith Evaluation</a></li>
+<li><a href="#sec-8-3">8.3. MetaStock System Tester</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Prolog</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This is an example system evaluation report. This is the first
+attempt at such a report. At current it does not address
+compare/contrast of systems, but aims to show ALL details that would
+make sense to address for a system.
+</p>
+
+<p>
+It's loosely based on the <code>strategy_x3.R</code> program.
+</p>
+
+<p>
+All input data is currently at hourly frequency.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> System</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Technical Analysis</h3>
+<div class="outline-text-3" id="text-2-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Indicator</th>
+<th scope="col" class="left">Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><b><code>SMAFast</code></b></td>
+<td class="left">SMA(10)</td>
+</tr>
+
+<tr>
+<td class="left"><b><code>SMASlow</code></b></td>
+<td class="left">SMA(20)</td>
+</tr>
+
+<tr>
+<td class="left"><b><code>ATR</code></b></td>
+<td class="left">(TTR package default)</td>
+</tr>
+
+<tr>
+<td class="left"><b><code>MACrossover</code></b></td>
+<td class="left"><code>sigCrossover(columns=c("SMAFast", "SMASlow"))</code></td>
+</tr>
+
+<tr>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Entry</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+<b><code>SMAFast</code></b> crosses above <b><code>SMASlow</code></b>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Exit</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Crosses back
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Key Performance Indicators</h3>
+<div class="outline-text-3" id="text-2-4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">Expectancy</td>
+<td class="right">2.54</td>
+<td class="left"><code>tradeStats("default")$Profit.Factor</code></td>
+</tr>
+
+<tr>
+<td class="left"><code>$Max.Drawdown$</code></td>
+<td class="right">-235.4432</td>
+<td class="left">(Should also be in terms of account %)</td>
+</tr>
+
+<tr>
+<td class="left">MAR</td>
+<td class="right">?</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Longest Drawdown</td>
+<td class="right">4</td>
+<td class="left">(code in <code>strategy_x3.R</code>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Indicators</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Showing only one month. Need good detailed view for technical
+indicators. Black line is some attempt at ATR stop. Blue is
+<b><code>SMAFast</code></b>.
+</p>
+
+<p>
+(<b>NOTE:</b> Need a lot of work on this graph. It needs to ideally be
+interactive.)
+</p>
+
+
+<div class="figure">
+<p><img src="ta.ex1.png" alt="ta.ex1.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> chart.Posn</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Trades, entry/exit signals, equity curve, drawdown graph
+</p>
+
+
+<div class="figure">
+<p><img src="chart.Posn.ex1.png" alt="chart.Posn.ex1.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Return Distribution &amp; MAE / MFE</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>Return distribution amount is percentage of account size
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="mae_mfe_plot.ex1.png" alt="mae_mfe_plot.ex1.png" />
+</p>
+</div>
+</div>
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Improvements</h3>
+<div class="outline-text-3" id="text-5-1">
+<ul class="org-ul">
+<li>Add a cumulative line
+</li>
+<li>Add a second percentage on the side
+</li>
+<li>"Split" it over 0 if possible
+</li>
+<li>Gain inspiration from
+<a href="http://www.tradingblox.com/Manuals/UsersGuideHTML/index.html?rmultipledistributiongraph.htm">http://www.tradingblox.com/Manuals/UsersGuideHTML/index.html?rmultipledistributiongraph.htm</a>
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="rmultipledistributiongraph_zoom90.png" alt="rmultipledistributiongraph_zoom90.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> E-Ratio</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+TBD: Need analysis of this. This is <b>entry</b> edge only.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Trade stats</h2>
+<div class="outline-text-2" id="text-7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">AAPL</th>
+<th scope="col" class="left">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">Num.Txns</td>
+<td class="right">82</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Num.Trades</td>
+<td class="right">40</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left"><b>Net.Trading.PL</b></td>
+<td class="right"><b>1278.108</b></td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Avg.Trade.PL</td>
+<td class="right">32.01283</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Med.Trade.PL</td>
+<td class="right">-8.24</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Gross.Profits</td>
+<td class="right">2113.47</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Gross.Losses</td>
+<td class="right">-832.9573</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Std.Dev.Trade.PL</td>
+<td class="right">126.8929</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left"><b>Profit.Factor</b></td>
+<td class="right">2.53731</td>
+<td class="left"><i>expectancy</i></td>
+</tr>
+
+<tr>
+<td class="left">Avg.Daily.PL</td>
+<td class="right">32.83367</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Med.Daily.PL</td>
+<td class="right">-9.88</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Std.Dev.Daily.PL</td>
+<td class="right">128.3279</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Ann.Sharpe</td>
+<td class="right">4.061614</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left"><b>Max.Drawdown</b></td>
+<td class="right">-235.4432</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Profit.To.Max.Draw</td>
+<td class="right">5.428521</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Avg.WinLoss.Ratio</td>
+<td class="right">3.432831</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Med.WinLoss.Ratio</td>
+<td class="right">0.9816733</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Max.Equity</td>
+<td class="right">1367.403</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">Min.Equity</td>
+<td class="right">-26.596</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">End.Equity</td>
+<td class="right">1278.108</td>
+<td class="left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Win/loss stats
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">Winner</th>
+<th scope="col" class="right">Loser</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">Largest</td>
+<td class="right">493.8</td>
+<td class="right">-50.13</td>
+</tr>
+
+<tr>
+<td class="left">Average</td>
+<td class="right">124.32</td>
+<td class="right">-36.22</td>
+</tr>
+
+<tr>
+<td class="left">Median</td>
+<td class="right">48.36</td>
+<td class="right">-49.27</td>
+</tr>
+
+<tr>
+<td class="left">Percent</td>
+<td class="right">42.5</td>
+<td class="right">57.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> Stuff to add:</h2>
+<div class="outline-text-2" id="text-8">
+<ul class="org-ul">
+<li>Normalize
+</li>
+<li>My "E-Ratio" like number that takes the whole system into account
+</li>
+<li>Include fees into calculations
+</li>
+<li>Weekly and/or monthly return and drawdown
+</li>
+<li>R-normalized numbers for comparison
+</li>
+<li>Log-scale the equity curve
+</li>
+<li>Longest drawdown duration, etc
+</li>
+</ul>
+</div>
+<div id="outline-container-sec-8-1" class="outline-3">
+<h3 id="sec-8-1"><span class="section-number-3">8.1</span> System Performance Stats</h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+from:
+<a href="https://systematicedge.wordpress.com/2011/02/23/system-development-3/">https://systematicedge.wordpress.com/2011/02/23/system-development-3/</a>
+</p>
+
+
+<div class="figure">
+<p><img src="systematicedge_portfolioperformance.png" alt="systematicedge_portfolioperformance.png" />
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-8-2" class="outline-3">
+<h3 id="sec-8-2"><span class="section-number-3">8.2</span> Curtis Faith Evaluation</h3>
+<div class="outline-text-3" id="text-8-2">
+<ul class="org-ul">
+<li>From Way of the Turtle (pg 148)
+</li>
+</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">System</th>
+<th scope="col" class="right">CAGR%</th>
+<th scope="col" class="right">MAR</th>
+<th scope="col" class="right">Sharpe</th>
+<th scope="col" class="right">Trades</th>
+<th scope="col" class="right">W%</th>
+<th scope="col" class="right">Max DD</th>
+<th scope="col" class="right">DD Length</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">ATR CBO</td>
+<td class="right">45.9%</td>
+<td class="right">1.15</td>
+<td class="right">1.27</td>
+<td class="right">216</td>
+<td class="right">43.1%</td>
+<td class="right">40.0%</td>
+<td class="right">8.3</td>
+</tr>
+
+<tr>
+<td class="left">Bollinger CBO</td>
+<td class="right">49.2%</td>
+<td class="right">1.44</td>
+<td class="right">1.47</td>
+<td class="right">136</td>
+<td class="right">53.7%</td>
+<td class="right">34.1%</td>
+<td class="right">7.8</td>
+</tr>
+
+<tr>
+<td class="left">Donchian Trend</td>
+<td class="right">27.4%</td>
+<td class="right">0.75</td>
+<td class="right">0.94</td>
+<td class="right">1901</td>
+<td class="right">38.7%</td>
+<td class="right">38.7%</td>
+<td class="right">27.6</td>
+</tr>
+
+<tr>
+<td class="left">Donchian Time</td>
+<td class="right">57.1%</td>
+<td class="right">1.31</td>
+<td class="right">1.34</td>
+<td class="right">773</td>
+<td class="right">59.1%</td>
+<td class="right">43.6%</td>
+<td class="right">12.1</td>
+</tr>
+
+<tr>
+<td class="left">Dual MA</td>
+<td class="right">49.1%</td>
+<td class="right">1.04</td>
+<td class="right">1.34</td>
+<td class="right">222</td>
+<td class="right">36.9%</td>
+<td class="right">47.2%</td>
+<td class="right">8.3</td>
+</tr>
+
+<tr>
+<td class="left">Triple MA</td>
+<td class="right">41.2%</td>
+<td class="right">0.97</td>
+<td class="right">1.21</td>
+<td class="right">186</td>
+<td class="right">41.9%</td>
+<td class="right">42.3%</td>
+<td class="right">8.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-8-3" class="outline-3">
+<h3 id="sec-8-3"><span class="section-number-3">8.3</span> MetaStock System Tester</h3>
+<div class="outline-text-3" id="text-8-3">
+<ul class="org-ul">
+<li>From MetaStock User's Manual pg 521
+<ul class="org-ul">
+<li>Check for description of metrics
+</li>
+</ul>
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="metastock_system_tester.png" alt="metastock_system_tester.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Jess Balint</p>
+<p class="date">Created: 2015-06-09 Tue 16:04</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

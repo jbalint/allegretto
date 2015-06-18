@@ -139,3 +139,25 @@ add_TA(mktdata$AtrStop, on = 1)
 add_TA(mktdata$SMAFast,col=4,on=1)
 
 dev.off()
+
+
+# Longest draw-down calculation
+# Initialize the new column
+ts <- perTradeStats("default")
+ts$ddStreakNum <- NA
+for (i in 1:nrow(ts)) {
+    prev <- ifelse(i == 1, 0, ts[i-1,]$ddStreakNum)
+    ts[i,]$ddStreakNum <- ifelse(ts[i,]$Net.Trading.PL < 0, 1 + prev, 0)
+}
+longestDd <- max(ts$ddStreakNum)
+print(paste("Longest drawdown is", longestDd))
+
+# Longest draw-down calculation (using rle())
+ts$isWin <- ts$Net.Trading.PL > 0
+streaks <- rle(ts$isWin)
+losingStreaks <- streaks$lengths[streaks$values == FALSE]
+longestDd <- max(losingStreaks)
+print(paste("Longest drawdown is", longestDd))
+# Way of the Turtle, pg 188
+avgMaxDd <- mean(tail(losingStreaks[sort.list(losingStreaks)], n = 5))
+print(paste("Average maximum drawdown is", avgMaxDd))

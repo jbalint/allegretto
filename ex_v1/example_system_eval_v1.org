@@ -1,4 +1,5 @@
 #+TITLE: (Example) System Evaluation (v1)
+#+DRAWERS: HIDDEN STATE
 
 * Prolog
   This is an example system evaluation report. This is the first
@@ -22,6 +23,12 @@
    *~SMAFast~* crosses above *~SMASlow~*.
 ** Exit
    Crosses back
+** Key Performance Indicators
+   | Expectancy       |      2.54 | =tradeStats("default")$Profit.Factor=  |
+   | =$Max.Drawdown$= | -235.4432 | (Should also be in terms of account %) |
+   | MAR              |         ? |                                        |
+   | Longest Drawdown |         4 | (code in =strategy_x3.R=)              |
+#+TBLFM: $1=$Max.Drawdown$
 * Indicators
   Showing only one month. Need good detailed view for technical
   indicators. Black line is some attempt at ATR stop. Blue is
@@ -38,32 +45,42 @@
   file:chart.Posn.ex1.png
 * Return Distribution & MAE / MFE
 #+COMMENT: 1500x300
+  + Return distribution amount is percentage of account size
+
   file:mae_mfe_plot.ex1.png
+** Improvements
+   + Add a cumulative line
+   + Add a second percentage on the side
+   + "Split" it over 0 if possible
+   + Gain inspiration from
+     http://www.tradingblox.com/Manuals/UsersGuideHTML/index.html?rmultipledistributiongraph.htm
+
+   file:rmultipledistributiongraph_zoom90.png
 * E-Ratio
   TBD: Need analysis of this. This is *entry* edge only.
 * Trade stats
-|                    |       AAPL |
-|--------------------+------------|
-| Num.Txns           |         82 |
-| Num.Trades         |         40 |
-| *Net.Trading.PL*   | *1278.108* |
-| Avg.Trade.PL       |   32.01283 |
-| Med.Trade.PL       |      -8.24 |
-| Gross.Profits      |    2113.47 |
-| Gross.Losses       |  -832.9573 |
-| Std.Dev.Trade.PL   |   126.8929 |
-| Profit.Factor      |    2.53731 |
-| Avg.Daily.PL       |   32.83367 |
-| Med.Daily.PL       |      -9.88 |
-| Std.Dev.Daily.PL   |   128.3279 |
-| Ann.Sharpe         |   4.061614 |
-| *Max.Drawdown*     |  -235.4432 |
-| Profit.To.Max.Draw |   5.428521 |
-| Avg.WinLoss.Ratio  |   3.432831 |
-| Med.WinLoss.Ratio  |  0.9816733 |
-| Max.Equity         |   1367.403 |
-| Min.Equity         |    -26.596 |
-| End.Equity         |   1278.108 |
+|                    |       AAPL | Note         |
+|--------------------+------------+--------------|
+| Num.Txns           |         82 |              |
+| Num.Trades         |         40 |              |
+| *Net.Trading.PL*   | *1278.108* |              |
+| Avg.Trade.PL       |   32.01283 |              |
+| Med.Trade.PL       |      -8.24 |              |
+| Gross.Profits      |    2113.47 |              |
+| Gross.Losses       |  -832.9573 |              |
+| Std.Dev.Trade.PL   |   126.8929 |              |
+| *Profit.Factor*    |    2.53731 | /expectancy/ |
+| Avg.Daily.PL       |   32.83367 |              |
+| Med.Daily.PL       |      -9.88 |              |
+| Std.Dev.Daily.PL   |   128.3279 |              |
+| Ann.Sharpe         |   4.061614 |              |
+| *Max.Drawdown*     |  -235.4432 |              |
+| Profit.To.Max.Draw |   5.428521 |              |
+| Avg.WinLoss.Ratio  |   3.432831 |              |
+| Med.WinLoss.Ratio  |  0.9816733 |              |
+| Max.Equity         |   1367.403 |              |
+| Min.Equity         |    -26.596 |              |
+| End.Equity         |   1278.108 |              |
 
 Win/loss stats
 
@@ -79,8 +96,30 @@ Win/loss stats
   + My "E-Ratio" like number that takes the whole system into account
   + Include fees into calculations
   + Weekly and/or monthly return and drawdown
-** Inspiration:
+  + R-normalized numbers for comparison
+  + Log-scale the equity curve
+  + Longest drawdown duration, etc
+  + Risk of ruin
+  + Kelly number
+** System Performance Stats
    from:
    https://systematicedge.wordpress.com/2011/02/23/system-development-3/
 
    file:systematicedge_portfolioperformance.png
+** Curtis Faith Evaluation
+   + From Way of the Turtle (pg 148)
+   | System         | CAGR% |  MAR | Sharpe | Trades |    W% | Max DD | DD Length |
+   |----------------+-------+------+--------+--------+-------+--------+-----------|
+   | ATR CBO        | 45.9% | 1.15 |   1.27 |    216 | 43.1% |  40.0% |       8.3 |
+   | Bollinger CBO  | 49.2% | 1.44 |   1.47 |    136 | 53.7% |  34.1% |       7.8 |
+   | Donchian Trend | 27.4% | 0.75 |   0.94 |   1901 | 38.7% |  38.7% |      27.6 |
+   | Donchian Time  | 57.1% | 1.31 |   1.34 |    773 | 59.1% |  43.6% |      12.1 |
+   | Dual MA        | 49.1% | 1.04 |   1.34 |    222 | 36.9% |  47.2% |       8.3 |
+   | Triple MA      | 41.2% | 0.97 |   1.21 |    186 | 41.9% |  42.3% |       8.5 |
+
+** MetaStock System Tester
+   + From MetaStock User's Manual pg 521
+	 + Check for description of metrics
+   + Also, here https://www.youtube.com/watch?v=ppOk2LTDcI8 at 16:01
+
+   file:metastock_system_tester.png
