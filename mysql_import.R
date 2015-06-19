@@ -4,9 +4,10 @@ require(DBI)
 require(xts)
 
 # Load trade history data from the internal storage
-loadHistory <- function (symbol, id) {
+loadHistory <- function (symbol) {
+    # TODO: parameterize the DB
     con <- DBI::dbConnect(RMySQL::MySQL(), user="root", password="", dbname="thinkorswim", host="127.0.0.1", port=3319)
-    query <- paste("select time, open, high, low, close, volume, v_w_a_p from trade_history where capture_id = '", id, "'", sep="")
+    query <- paste("select time, open, high, low, close, volume, vwap from trade_history where symbol = '", symbol, "'", sep="")
     rs <- DBI::dbSendQuery(con, query)
     # TODO: check nrow(fr) and if it's zero, bail with an error
     fr <- DBI::fetch(rs, n=-1)
@@ -19,7 +20,7 @@ loadHistory <- function (symbol, id) {
 }
 
 # And assign it in the global environment like `getSymbol()'
-myGetSymbol <- function (symbol, id) {
-    data <- loadHistory(symbol, id)
+myGetSymbol <- function (symbol) {
+    data <- loadHistory(symbol)
     assign(symbol, data, envir = globalenv())
 }
