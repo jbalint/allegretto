@@ -1,9 +1,13 @@
 # http://www.forbes.com/sites/katestalter/2012/04/27/how-a-top-trader-uses-moving-average-crossovers/
 
+# Stoploss = price - (mult * ATR)
+stoplossAtrMultiplier <- 3
+
+TxnFees <- -10
+
 # Trade history should be loaded already (c.f. mysql_import.R)
 symbol <- "AAPL"
 mktdata <- get(symbol)
-#mktdata <- mktdata["2014-09-01/2014-09-15"]
 
 mktdata <- merge.xts(mktdata, ADX(mktdata))
 mktdata$SMAFast <- SMA(mktdata$Close, n = 10)
@@ -30,66 +34,59 @@ strategy("default", store = TRUE)
 initOrders(portfolio="default")
 initAcct(portfolios="default", initEq=10000)
 
-# position sizing, passed as osFUN (order sizing function)
-osRisk <- function(data, timestamp, ...) {
-    mktdata <- data
-    ts <- timestamp
-    maxSpend <- 5000
-    maxRisk <- 100 # 2% of $5k, TODO: example value (for now)
-    maxLoss <- as.numeric(mktdata[ts]$atr) * 3
-    orderqty <- floor(maxRisk / maxLoss)
-    price <- as.numeric(mktdata[ts]$Close)
-    cost <- orderqty * price
-    maxqty <- floor(maxSpend / price)
-    return(ifelse(cost > maxSpend, maxqty, orderqty))
+# manual order entry & tracking
+longstop <- 0
+longpos <- 0
+shortstop <- 0
+shortpos <- 0
+for (i in 1:nrow(mktdata)) {
+    if ((i %% 400) == 0) {
+        print(i)
+    }
+    if (is.na(mktdata[i,]$atr)) {
+        next
+    }
+    if (longpos > 0) {
+        newstop <- data.frame(mktdata[i,]$Close - (2.5 * mktdata[i,]$atr))[1,]
+        if (newstop > longstop) {
+            longstop <- newstop
+        }
+    }
+    if (longpos > 0 && (mktdata[i,]$Close < longstop || !is.na(mktdata[i,]$MACrossback))) {
+        addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
+        longpos <- 0
+    }
+    if (shortpos > 0 && mktdata[i,]$Close > shortstop) {
+        addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
+        shortpos <- 0
+    }
+    ## if (!is.na(mktdata[i,]$MACrossover)) {
+    ##     if (shortpos > 0) {
+    ##         addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
+    ##         shortpos <- 0
+    ##     }
+    ##     longstop <- data.frame(mktdata[i,]$Close - (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
+    ##     buyamt <- floor(80 / data.frame(mktdata[i,]$Close - longstop)[1,])
+    ##     longpos <- longpos + buyamt
+    ##     addTxn("default", symbol, index(mktdata[i,]), buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
+    ## }
+    if (!is.na(mktdata[i,]$MACrossback)) {
+        if (longpos > 0) {
+            addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
+            longpos <- 0
+        }
+        shortstop <- data.frame(mktdata[i,]$Close + (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
+        buyamt <- floor(80 / data.frame(shortstop - mktdata[i,]$Close)[1,])
+        shortpos <- shortpos + buyamt
+        addTxn("default", symbol, index(mktdata[i,]), -1 * buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
+    }
 }
 
-add.rule("default", "ruleSignal",
-         list(sigcol = "MACrossover", sigval = TRUE, orderqty = 1, osFUN = osRisk, ordertype = "market", orderside = "long"),
-         type = "enter",
-         label = "enterLong")
-
-## add.rule("default", "ruleSignal",
-##          list(sigcol = "AtrStopout", sigval = 1, orderqty = "all", ordertype = "market", orderside = "long"), type = "exit")
-
-add.rule("default", "ruleSignal",
-         list(orderqty = "all", ordertype = "stoplimit", threshold = -0.01, tmult = TRUE),
-         type = "chain", parent = "enterLong")
-
-## add.rule("default", "ruleSignal",
-##          list(sigcol = "MACrossback", sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"),
-##          type = "exit")
-
-hours <- 12
-
-add.rule("default", "ruleSignal",
-         list(sigcol = "MACrossback",
-              delay = 3600 * 72, sigval = TRUE, orderqty = "all", ordertype = "market", orderside = "long"),
-         type = "exit")
-
-
-## add.rule("default", name = 'ruleSignal',
-## 	arguments=list(sigcol='long' , sigval=TRUE,
-## 		replace=FALSE,
-## 		orderside='long',
-## 		ordertype='stoplimit', tmult=TRUE, threshold=(.4/100),
-## 		#TxnFees=.txnfees,
-## 		orderqty='all',
-## 		orderset='ocolong'
-## 	),
-## 	type='chain', parent='enterLONG',
-## 	label='stopLossLONG',
-## 	enabled=FALSE
-## )
-
-
-applyStrategy(strategy="default", portfolios="default", mktdata=mktdata)
 
 ###
 updatePortf("default")
 updateAcct()
 updateEndEq(Account="default")
-
 t(tradeStats("default"))
 
 tradeQuantiles("default", symbol)
@@ -116,6 +113,8 @@ png(filename = "test_out.png",
     type = c("cairo", "cairo-png", "Xlib", "quartz"))
 
 myChartPosn("default", symbol, mktdata, TA=TA)
+
+myChartPosn("default", symbol, mktdata["2014-09"])
 
 dev.off()
 
@@ -161,3 +160,17 @@ print(paste("Longest drawdown is", longestDd))
 # Way of the Turtle, pg 188
 avgMaxDd <- mean(tail(losingStreaks[sort.list(losingStreaks)], n = 5))
 print(paste("Average maximum drawdown is", avgMaxDd))
+
+# position sizing, passed as osFUN (order sizing function)
+osRisk <- function(data, timestamp, ...) {
+    mktdata <- data
+    ts <- timestamp
+    maxSpend <- 5000
+    maxRisk <- 100 # 2% of $5k, TODO: example value (for now)
+    maxLoss <- as.numeric(mktdata[ts]$atr) * 3
+    orderqty <- floor(maxRisk / maxLoss)
+    price <- as.numeric(mktdata[ts]$Close)
+    cost <- orderqty * price
+    maxqty <- floor(maxSpend / price)
+    return(ifelse(cost > maxSpend, maxqty, orderqty))
+}
