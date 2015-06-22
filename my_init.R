@@ -24,6 +24,7 @@ myChartPosn <- function(Portfolio, Symbol, mktdata, Dates = NULL, ...,TA=NULL)
     Portfolio<-getPortfolio(pname)
 
     Prices = mktdata
+    # JB: remove the columns that it doesn't want
     freq = periodicity(Prices)
     switch(freq$scale,
             seconds = { mult=1 },

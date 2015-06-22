@@ -6,10 +6,12 @@ stoplossAtrMultiplier <- 3
 TxnFees <- -10
 
 # Trade history should be loaded already (c.f. mysql_import.R)
-symbol <- "AAPL"
+symbol <- "MTUM"
 mktdata <- get(symbol)
 
+
 mktdata <- merge.xts(mktdata, ADX(mktdata))
+
 mktdata$SMAFast <- SMA(mktdata$Close, n = 10)
 mktdata$SMASlow <- SMA(mktdata$Close, n = 20)
 mktdata <- merge.xts(mktdata, ATR(mktdata))
@@ -17,7 +19,12 @@ mktdata$AtrStop <- lag(mktdata$Close, k=1) - (2 * lag(mktdata$atr, k=1))
 mktdata$AtrStopout <- mktdata$Close < mktdata$AtrStop
 mktdata <- merge.xts(mktdata, sigCrossover("MACrossover", columns=c("SMAFast", "SMASlow")))
 mktdata <- merge.xts(mktdata, sigCrossover("MACrossback", columns=c("SMASlow", "SMAFast")))
-mktdata$mac2 <- mktdata$MACrossover * mktdata$Close
+
+mktdata$rsi5 <- RSI(mktdata$Close, n=5, maType="WMA", wts=mktdata[,"Volume"])
+
+mktdata$maxOhlc <- pmax(mktdata$Open, mktdata$High, mktdata$Low, mktdata$Close)
+mktdata$CloseRise <- mktdata$Close / lag(mktdata$maxOhlc)
+
 #head(mktdata[,c("AAPL.Close", "atr", "AtrStop", "AtrStopout")], n=100)
 # these packages are really stupid in this regard, Cl() uses grep, etc
 # AND there's no nicer way to do this?
@@ -52,7 +59,7 @@ for (i in 1:nrow(mktdata)) {
             longstop <- newstop
         }
     }
-    if (longpos > 0 && (mktdata[i,]$Close < longstop || !is.na(mktdata[i,]$MACrossback))) {
+    if (longpos > 0 && (mktdata[i,]$Close < longstop || !is.na(mktdata[i,]$MACrossback) || mktdata[i,]$CloseRise < 0.998)) {
         addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
         longpos <- 0
     }
@@ -60,26 +67,26 @@ for (i in 1:nrow(mktdata)) {
         addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
         shortpos <- 0
     }
-    ## if (!is.na(mktdata[i,]$MACrossover)) {
-    ##     if (shortpos > 0) {
-    ##         addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
-    ##         shortpos <- 0
-    ##     }
-    ##     longstop <- data.frame(mktdata[i,]$Close - (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
-    ##     buyamt <- floor(80 / data.frame(mktdata[i,]$Close - longstop)[1,])
-    ##     longpos <- longpos + buyamt
-    ##     addTxn("default", symbol, index(mktdata[i,]), buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
-    ## }
-    if (!is.na(mktdata[i,]$MACrossback)) {
-        if (longpos > 0) {
-            addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
-            longpos <- 0
+    if (!is.na(mktdata[i,]$MACrossover) && mktdata[i,]$rsi5 > 50) {
+        if (shortpos > 0) {
+            addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
+            shortpos <- 0
         }
-        shortstop <- data.frame(mktdata[i,]$Close + (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
-        buyamt <- floor(80 / data.frame(shortstop - mktdata[i,]$Close)[1,])
-        shortpos <- shortpos + buyamt
-        addTxn("default", symbol, index(mktdata[i,]), -1 * buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
+        longstop <- data.frame(mktdata[i,]$Close - (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
+        buyamt <- floor(80 / data.frame(mktdata[i,]$Close - longstop)[1,])
+        longpos <- longpos + buyamt
+        addTxn("default", symbol, index(mktdata[i,]), buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
     }
+    ## if (!is.na(mktdata[i,]$MACrossback)) {
+    ##     if (longpos > 0) {
+    ##         addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
+    ##         longpos <- 0
+    ##     }
+    ##     shortstop <- data.frame(mktdata[i,]$Close + (stoplossAtrMultiplier * mktdata[i,]$atr))[1,]
+    ##     buyamt <- floor(80 / data.frame(shortstop - mktdata[i,]$Close)[1,])
+    ##     shortpos <- shortpos + buyamt
+    ##     addTxn("default", symbol, index(mktdata[i,]), -1 * buyamt, mktdata[i,]$Close, TxnFees=TxnFees)
+    ## }
 }
 
 
@@ -89,7 +96,7 @@ updateAcct()
 updateEndEq(Account="default")
 t(tradeStats("default"))
 
-tradeQuantiles("default", symbol)
+#tradeQuantiles("default", symbol)
 
 perTradeStats("default", symbol)
 
@@ -121,7 +128,7 @@ dev.off()
 
 # this one causes problems with `chartSeries' (because it has the word "low" in it)
 #
-mktdata <- mktdata[, !(colnames(mktdata) %in% c("SMASlow"))]
+mktdata <- mktdata[, !(colnames(mktdata) %in% c("SMASlow", "CloseRise"))]
 
 
 png(filename = "ex_v1/ta.ex1.png",
@@ -133,7 +140,6 @@ chart_Series(mktdata["2014-12"])
 #chart_Series(mktdata)
 
 add_TA(mktdata$AtrStop, on = 1)
-#add_TA(mktdata$mac2, on = 1, col = 8)
 
 add_TA(mktdata$SMAFast,col=4,on=1)
 
