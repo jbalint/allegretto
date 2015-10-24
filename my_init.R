@@ -11,11 +11,11 @@ load_all("/home/jbalint/Dropbox/Apps/R-trading-packages/quantstrat")
 
 # my version of mysql import from my db
 source("mysql_import.R")
-myGetSymbol('VYM')
-myGetSymbol('AAPL')
-myGetSymbol('MSFT')
-myGetSymbol('CRM')
-myGetSymbol('SCCO')
+#myGetSymbol('VYM')
+#myGetSymbol('AAPL')
+#myGetSymbol('MSFT')
+#myGetSymbol('CRM')
+#myGetSymbol('SCCO')
 
 # Copied so I can pass `mktdata' directly
 myChartPosn <- function(Portfolio, Symbol, mktdata, Dates = NULL, ...,TA=NULL)
@@ -91,4 +91,27 @@ myChartPosn <- function(Portfolio, Symbol, mktdata, Dates = NULL, ...,TA=NULL)
     if(!is.null(CumPL))  (add_TA(CumPL, col='darkgreen', lwd=2))
     if(!is.null(Drawdown)) (add_TA(Drawdown, col='darkred', lwd=2, yaxis=c(0,-max(CumMax))))
     plot(current.chob())
+}
+
+# these packages are really fucking stupid for not just using "Open", "Close", etc column names
+my.OHLC <- function (d) {
+    d[,c("Open", "High", "Low", "Close", "Volume")]
+}
+
+toOrgTable <- function (df) {
+    cat(paste("|", colnames(df), sep=""))
+    cat("|\n")
+    for (i in 1:nrow(df)) {
+        cat("|")
+        for (col in colnames(df)) {
+            if (class(df[[col]]) == "POSIXct") {
+                cat(format(df[i,col]), "|")
+            } else if (class(df[[col]]) == "numeric") {
+                cat(round(df[i,col], 2), "|")
+            } else {
+                cat(df[i,col], "|")
+            }
+        }
+        cat("\n")
+    }
 }

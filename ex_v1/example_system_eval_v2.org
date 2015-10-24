@@ -1,0 +1,40 @@
+#+COMMENT: -*- mode: org; org-html-table-default-attributes: (:border "2" :rules "all" :frame "border"); -*-
+#+TITLE: System Evaluation (v2)
+
+* Input
+#+INCLUDE: "../stats.txt" :lines "2-4"
++ Frequency: 1 hour
++ TA List:
+  + *~SMASlow~* = ~SMA(20)~
+  + *~SMAFast~* = ~SMA(10)~
+  + *~MACrossover~*
+  + *~MACrossback~*
+* System Description
+  This is a simplistic system where long entries are made when the
+  fast MA moves /above/ the slow MA and the position is reversed when
+  the fast MA moves /below/ the slow MA.
+
+  Notes:
+  + No stop loss is used. However, position sizing is based on a stop
+    loss of 3*ATR.
+* Key Performance Indicators
+#+INCLUDE: "../stats.txt" :lines "4-"
+
+Win/Loss stats
+
+#+INCLUDE: "../winloss.stats.txt"
+
+** TODO
+   | *MAR*        |    ? |
+* Return Distribution & MAE/MFE
+  file:returns.mae.mfe.ex2.png
+* Equity Curve & Drawdown
+  file:equity.drawdown.ex2.png
+* Price Action & TA
+#+HTML: <div style="overflow: auto">
+  file:entry.exit.ex2.png
+#+HTML: </div>
+* Trades
+#+INCLUDE: "../perTradeStats.txt"
+* Notes
+  + Based on =strategy_x4.R=

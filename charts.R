@@ -1,25 +1,24 @@
 # Charts....
 
-# these packages are really fucking stupid for not just using "Open", "Close", etc column names
-my.OHLC <- function (d) {
-    d[,c("Open", "High", "Low", "Close", "Volume")]
-}
-
 # Re-use `mktdata' from strategy_x3.R
 
 mktdata$n <- row(mktdata)[,1]
 
 #chart_Series(my.OHLC(mktdata["2015-05/"]))
 
-## png(filename = "ta.ex3.png",
-##     width = 1000, height = 400, units = "px", pointsize = 12,
-##     bg = "white",
-##     type = c("cairo", "cairo-png", "Xlib", "quartz"))
+png(filename = "ta.ex3.png",
+    width = 8000, height = 500, units = "px", pointsize = 12,
+    bg = "white",
+    type = c("cairo", "cairo-png", "Xlib", "quartz"))
 
-chart_Series(my.OHLC(mktdata))#, subset="2015-05/2015-06")
+#chart_Series(my.OHLC(mktdata), subset="2015-04-01/2015-04-02")
+
+
+chart_Series(my.OHLC(mktdata), pars=list(mar=c(3,0,0,0)))#, subset="2015-05/2015-06")
+
 add_TA(mktdata[,"SMASlow"], on=1, col="#00FFFF")
 add_TA(mktdata[,"SMAFast"], on=1, col="#FF7F50")
-add_TA(mktdata[!is.na(mktdata$MACrossover), "Close"], pch=2, type='p', col='green', on=1)
+add_TA(mktdata[!is.na(mktdata$MACrossover), "Close"], pch=2, type='p', col='blue', on=1)
 add_TA(mktdata[!is.na(mktdata$MACrossback), "Close"], pch=6, type='p', col='red', on=1)
 #add_Vo()
 
@@ -56,7 +55,7 @@ for (i in 1:nrow(pairs)) {
 #lines(c(607,625), c(67.6,68.31), lwd=2, col="green")#, type="h")
 #lines(c(607,625), c(67.6,68.31), col="green", type="h")
 
-#dev.off()
+dev.off()
 
 add_WMA()
 

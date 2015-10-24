@@ -24,11 +24,11 @@
 ** Exit
    Crosses back
 ** Key Performance Indicators
-   | Expectancy       |      2.54 | =tradeStats("default")$Profit.Factor=  |
-   | =$Max.Drawdown$= | -235.4432 | (Should also be in terms of account %) |
+#+ATTR_HTML: :border 2 :rules all :frame border
+   | *Expectancy*     |      2.54 | =tradeStats("default")$Profit.Factor=  |
+   | *Max DD*         | -235.4432 | (Should also be in terms of account %) |
    | MAR              |         ? |                                        |
    | Longest Drawdown |         4 | (code in =strategy_x3.R=)              |
-#+TBLFM: $1=$Max.Drawdown$
 * Indicators
   Showing only one month. Need good detailed view for technical
   indicators. Black line is some attempt at ATR stop. Blue is
@@ -123,3 +123,8 @@ Win/loss stats
    + Also, here https://www.youtube.com/watch?v=ppOk2LTDcI8 at 16:01
 
    file:metastock_system_tester.png
+
+** Rina Systems
+   + May be worth checking out at some point
+   + http://www.rinafinancial.com/PortfolioEvaluator7.asp
+   + http://www.rinafinancial.com/MoneyManager7.asp
