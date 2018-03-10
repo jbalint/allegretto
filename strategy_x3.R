@@ -53,16 +53,19 @@ for (i in 1:nrow(mktdata)) {
     if (is.na(mktdata[i,]$atr)) {
         next
     }
+    # Trailing stop calculation
     if (longpos > 0) {
         newstop <- data.frame(mktdata[i,]$Close - (2.5 * mktdata[i,]$atr))[1,]
         if (newstop > longstop) {
             longstop <- newstop
         }
     }
+    # Sell signals, (stopLoss || crossBack || notIncreasing)
     if (longpos > 0 && (mktdata[i,]$Close < longstop || !is.na(mktdata[i,]$MACrossback) || mktdata[i,]$CloseRise < 0.998)) {
         addTxn("default", symbol, index(mktdata[i,]), -1 * longpos, mktdata[i,]$Close, TxnFees=TxnFees)
         longpos <- 0
     }
+    # short stopLoss
     if (shortpos > 0 && mktdata[i,]$Close > shortstop) {
         addTxn("default", symbol, index(mktdata[i,]), shortpos, mktdata[i,]$Close, TxnFees=TxnFees)
         shortpos <- 0
